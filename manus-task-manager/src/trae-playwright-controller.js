@@ -18,8 +18,8 @@ class TraePlaywrightController {
             timeout: config.timeout || 30000,
             waitTime: config.waitTime || 2000,
             
-            // 瀏覽器配置
-            chromeExecutablePath: config.chromeExecutablePath || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+            // 瀏覽器配置 - 修正Linux環境下的Chrome路徑
+            chromeExecutablePath: config.chromeExecutablePath || this.getDefaultChromePath(),
             viewport: config.viewport || { width: 1920, height: 1080 },
             
             // 選擇器配置
@@ -46,6 +46,41 @@ class TraePlaywrightController {
     }
 
     /**
+     * 獲取默認Chrome路徑
+     */
+    getDefaultChromePath() {
+        const os = require('os');
+        const platform = os.platform();
+        
+        switch (platform) {
+            case 'darwin': // macOS
+                return '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+            case 'linux':
+                // 嘗試常見的Linux Chrome路徑
+                const possiblePaths = [
+                    '/usr/bin/google-chrome',
+                    '/usr/bin/google-chrome-stable',
+                    '/usr/bin/chromium-browser',
+                    '/usr/bin/chromium'
+                ];
+                
+                const fs = require('fs');
+                for (const path of possiblePaths) {
+                    if (fs.existsSync(path)) {
+                        return path;
+                    }
+                }
+                
+                // 如果都找不到，返回null讓Playwright使用內建的Chromium
+                return null;
+            case 'win32': // Windows
+                return 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+            default:
+                return null; // 使用Playwright內建的Chromium
+        }
+    }
+
+    /**
      * 初始化瀏覽器和頁面
      */
     async initialize() {
@@ -53,8 +88,7 @@ class TraePlaywrightController {
             this.log('🚀 初始化Trae Playwright控制器...');
             
             // 啟動瀏覽器
-            this.browser = await chromium.launch({
-                executablePath: this.config.chromeExecutablePath,
+            const launchOptions = {
                 headless: this.config.headless,
                 args: [
                     '--no-sandbox',
@@ -65,7 +99,19 @@ class TraePlaywrightController {
                     '--no-zygote',
                     '--disable-gpu'
                 ]
-            });
+            };
+            
+            // 只有在指定了Chrome路徑且文件存在時才使用
+            if (this.config.chromeExecutablePath) {
+                const fs = require('fs');
+                if (fs.existsSync(this.config.chromeExecutablePath)) {
+                    launchOptions.executablePath = this.config.chromeExecutablePath;
+                } else {
+                    this.log(`⚠️ 指定的Chrome路徑不存在，使用Playwright內建Chromium: ${this.config.chromeExecutablePath}`, 'warn');
+                }
+            }
+            
+            this.browser = await chromium.launch(launchOptions);
 
             // 創建新頁面
             this.page = await this.browser.newPage();
