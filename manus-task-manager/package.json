@@ -5,6 +5,11 @@
   "main": "src/manus_comprehensive_manager.js",
   "scripts": {
     "start": "node src/manus_comprehensive_manager.js",
+    "trae-send": "node src/trae-cli.js send",
+    "trae-history": "node src/trae-cli.js history", 
+    "trae-share": "node src/trae-cli.js share",
+    "trae-test": "node src/trae-cli.js test",
+    "trae-examples": "node examples/trae-playwright-examples.js",
     "test": "node examples/basic-usage.js",
     "dev": "NODE_ENV=development node src/manus_comprehensive_manager.js",
     "prod": "NODE_ENV=production node src/manus_comprehensive_manager.js",
