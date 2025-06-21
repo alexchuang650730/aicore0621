@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartInvention MCP - 智能自動化管理系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e1e;
+            color: #cccccc;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            background: #1e1e1e;
+        }
+
+        /* 左側儀表板 */
+        .dashboard {
+            width: 320px;
+            background: #252526;
+            border-right: 1px solid #3c3c3c;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #3c3c3c;
+        }
+
+        .dashboard-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-left: 8px;
+        }
+
+        .status-section {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            background: #2d2d30;
+            border-radius: 6px;
+            border-left: 3px solid #007acc;
+            transition: all 0.2s ease;
+        }
+
+        .status-item:hover {
+            background: #3c3c3c;
+        }
+
+        .status-item.manus {
+            border-left-color: #4ec9b0;
+        }
+
+        .status-item.trae {
+            border-left-color: #dcdcaa;
+        }
+
+        .status-item.error {
+            border-left-color: #f44747;
+        }
+
+        .status-label {
+            font-size: 12px;
+            color: #cccccc;
+            display: flex;
+            align-items: center;
+        }
+
+        .status-value {
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .status-positive {
+            color: #4ec9b0;
+        }
+
+        .status-warning {
+            color: #dcdcaa;
+        }
+
+        .status-error {
+            color: #f44747;
+        }
+
+        .quick-actions {
+            margin-bottom: 24px;
+        }
+
+        .action-button {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background: #0e639c;
+            border: none;
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-button:hover {
+            background: #1177bb;
+            transform: translateY(-1px);
+        }
+
+        .action-button.manus {
+            background: #4ec9b0;
+        }
+
+        .action-button.manus:hover {
+            background: #5dd4b7;
+        }
+
+        .action-button.trae {
+            background: #dcdcaa;
+            color: #1e1e1e;
+        }
+
+        .action-button.trae:hover {
+            background: #e6e6b7;
+        }
+
+        .action-button.secondary {
+            background: #3c3c3c;
+        }
+
+        .action-button.secondary:hover {
+            background: #4c4c4c;
+        }
+
+        .action-button:disabled {
+            background: #3c3c3c;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: #2d2d30;
+            padding: 14px;
+            border-radius: 6px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            background: #3c3c3c;
+        }
+
+        .stat-number {
+            font-size: 20px;
+            font-weight: 700;
+            color: #4ec9b0;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #cccccc;
+            margin-top: 4px;
+        }
+
+        /* 中間測試操作區 */
+        .test-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1e1e1e;
+        }
+
+        .test-header {
+            padding: 16px 20px;
+            background: #252526;
+            border-bottom: 1px solid #3c3c3c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .test-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .test-status {
+            font-size: 12px;
+            color: #4ec9b0;
+            display: flex;
+            align-items: center;
+            background: rgba(78, 201, 176, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .test-tabs {
+            display: flex;
+            background: #252526;
+            border-bottom: 1px solid #3c3c3c;
+        }
+
+        .test-tab {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            color: #cccccc;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 2px solid transparent;
+        }
+
+        .test-tab.active {
+            color: #ffffff;
+            background: #2d2d30;
+            border-bottom-color: #007acc;
+        }
+
+        .test-tab:hover {
+            background: #2d2d30;
+        }
+
+        .test-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .test-panel {
+            display: none;
+        }
+
+        .test-panel.active {
+            display: block;
+        }
+
+        .test-form {
+            background: #252526;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: #ffffff;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: #1e1e1e;
+            border: 1px solid #3c3c3c;
+            border-radius: 4px;
+            color: #cccccc;
+            font-size: 12px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #007acc;
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .test-button {
+            padding: 10px 20px;
+            background: #007acc;
+            border: none;
+            border-radius: 4px;
+            color: #ffffff;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .test-button:hover {
+            background: #1177bb;
+        }
+
+        .test-button.manus {
+            background: #4ec9b0;
+        }
+
+        .test-button.manus:hover {
+            background: #5dd4b7;
+        }
+
+        .test-button.trae {
+            background: #dcdcaa;
+            color: #1e1e1e;
+        }
+
+        .test-button.trae:hover {
+            background: #e6e6b7;
+        }
+
+        .test-results {
+            background: #2d2d30;
+            padding: 16px;
+            border-radius: 6px;
+            margin-top: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .result-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #3c3c3c;
+            font-size: 12px;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-timestamp {
+            color: #808080;
+            font-size: 10px;
+        }
+
+        .result-message {
+            color: #cccccc;
+            margin-top: 4px;
+        }
+
+        .result-success {
+            color: #4ec9b0;
+        }
+
+        .result-error {
+            color: #f44747;
+        }
+
+        /* 右側數據驗證區 */
+        .data-area {
+            width: 350px;
+            background: #252526;
+            border-left: 1px solid #3c3c3c;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .data-header {
+            padding: 16px 20px;
+            background: #2d2d30;
+            border-bottom: 1px solid #3c3c3c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .data-status {
+            font-size: 10px;
+            color: #4ec9b0;
+            background: rgba(78, 201, 176, 0.1);
+            padding: 2px 6px;
+            border-radius: 2px;
+        }
+
+        .data-content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .data-section {
+            margin-bottom: 20px;
+        }
+
+        .data-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table {
+            width: 100%;
+            background: #2d2d30;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 11px;
+            border-bottom: 1px solid #3c3c3c;
+        }
+
+        .data-table th {
+            background: #3c3c3c;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            color: #cccccc;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .log-container {
+            background: #1e1e1e;
+            border: 1px solid #3c3c3c;
+            border-radius: 4px;
+            padding: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+        }
+
+        .log-entry {
+            margin-bottom: 4px;
+            color: #cccccc;
+        }
+
+        .log-entry.info {
+            color: #4ec9b0;
+        }
+
+        .log-entry.warning {
+            color: #dcdcaa;
+        }
+
+        .log-entry.error {
+            color: #f44747;
+        }
+
+        /* 滾動條樣式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3c3c3c;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4c4c4c;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 1200px) {
+            .dashboard {
+                width: 280px;
+            }
+            .data-area {
+                width: 300px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .dashboard {
+                width: 240px;
+            }
+            .data-area {
+                width: 250px;
+            }
+        }
+
+        /* 載入動畫 */
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #3c3c3c;
+            border-radius: 50%;
+            border-top-color: #007acc;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 通知樣式 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 16px;
+            background: #4ec9b0;
+            color: #1e1e1e;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #f44747;
+            color: #ffffff;
+        }
+
+        .notification.warning {
+            background: #dcdcaa;
+            color: #1e1e1e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 左側儀表板 -->
+        <div class="dashboard">
+            <div class="dashboard-header">
+                <span>🤖</span>
+                <div class="dashboard-title">SmartInvention MCP</div>
+            </div>
+
+            <!-- 系統狀態 -->
+            <div class="status-section">
+                <div class="section-title">📊 系統狀態</div>
+                <div class="status-item manus">
+                    <span class="status-label">🔵 SmartInvention 系統</span>
+                    <span class="status-value" id="manusStatus">檢查中...</span>
+                </div>
+                <div class="status-item trae">
+                    <span class="status-label">🟡 TRAE 系統</span>
+                    <span class="status-value" id="traeStatus">檢查中...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">🗄️ 數據庫</span>
+                    <span class="status-value" id="dbStatus">檢查中...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">🌐 Playwright</span>
+                    <span class="status-value" id="playwrightStatus">檢查中...</span>
+                </div>
+            </div>
+
+            <!-- 統計數據 -->
+            <div class="status-section">
+                <div class="section-title">📈 統計數據</div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number" id="totalTasks">0</span>
+                        <div class="stat-label">總任務數</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="totalMessages">0</span>
+                        <div class="stat-label">總消息數</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="classifiedMessages">0</span>
+                        <div class="stat-label">已分類</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="totalFiles">0</span>
+                        <div class="stat-label">文件數</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快速操作 -->
+            <div class="quick-actions">
+                <div class="section-title">🚀 快速操作</div>
+                <button class="action-button manus" onclick="refreshManusStatus()">
+                    🔄 刷新 SmartInvention 狀態
+                </button>
+                <button class="action-button trae" onclick="refreshTraeStatus()">
+                    🔄 刷新 TRAE 狀態
+                </button>
+                <button class="action-button secondary" onclick="refreshDatabase()">
+                    📊 刷新數據統計
+                </button>
+                <button class="action-button secondary" onclick="exportData()">
+                    📤 導出數據
+                </button>
+            </div>
+
+            <!-- 最近活動 -->
+            <div class="status-section">
+                <div class="section-title">📋 最近活動</div>
+                <div id="recentActivities">
+                    <div class="status-item">
+                        <span class="status-label">系統啟動</span>
+                        <span class="status-value status-positive">完成</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 中間測試操作區 -->
+        <div class="test-area">
+            <div class="test-header">
+                <div class="test-title">🧪 測試介入控制台</div>
+                <div class="test-status" id="testStatus">
+                    <span>🟢 就緒</span>
+                </div>
+            </div>
+
+            <div class="test-tabs">
+                <button class="test-tab active" onclick="switchTab('manus')">
+                    🔵 SmartInvention 測試
+                </button>
+                <button class="test-tab" onclick="switchTab('trae')">
+                    🟡 TRAE 測試
+                </button>
+                <button class="test-tab" onclick="switchTab('automation')">
+                    ⚡ 自動化測試
+                </button>
+            </div>
+
+            <div class="test-content">
+                <!-- Manus 測試面板 -->
+                <div id="manus-panel" class="test-panel active">
+                    <div class="test-form">
+                        <h3 style="color: #4ec9b0; margin-bottom: 16px;">🔵 SmartInvention 系統測試</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Manus URL</label>
+                            <input type="text" class="form-input" id="manusUrl" 
+                                   value="https://manus.im/app/GrrtiY4cAAEVpH3RxpJDDb" 
+                                   placeholder="輸入 Manus 任務 URL">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">測試操作</label>
+                            <select class="form-input" id="manusAction">
+                                <option value="navigate">導航到頁面</option>
+                                <option value="extract_history">提取對話歷史</option>
+                                <option value="send_message">發送測試消息</option>
+                                <option value="download_files">下載文件</option>
+                                <option value="full_automation">完整自動化流程</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">測試消息 (可選)</label>
+                            <textarea class="form-input form-textarea" id="manusMessage" 
+                                      placeholder="輸入要發送的測試消息..."></textarea>
+                        </div>
+
+                        <button class="test-button manus" onclick="runManusTest()">
+                            🚀 執行 Manus 測試
+                        </button>
+                    </div>
+
+                    <div class="test-results" id="manusResults">
+                        <div class="result-item">
+                            <div class="result-timestamp">等待測試...</div>
+                            <div class="result-message">點擊上方按鈕開始 Manus 系統測試</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TRAE 測試面板 -->
+                <div id="trae-panel" class="test-panel">
+                    <div class="test-form">
+                        <h3 style="color: #dcdcaa; margin-bottom: 16px;">🟡 TRAE 系統測試</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">TRAE URL</label>
+                            <input type="text" class="form-input" id="traeUrl" 
+                                   value="https://manus.im/app/" 
+                                   placeholder="輸入 TRAE 系統 URL">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">測試操作</label>
+                            <select class="form-input" id="traeAction">
+                                <option value="connect">連接 TRAE</option>
+                                <option value="send_command">發送命令</option>
+                                <option value="get_history">獲取歷史</option>
+                                <option value="vscode_control">VS Code 控制</option>
+                                <option value="full_test">完整測試流程</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">測試命令 (可選)</label>
+                            <textarea class="form-input form-textarea" id="traeCommand" 
+                                      placeholder="輸入要執行的 TRAE 命令..."></textarea>
+                        </div>
+
+                        <button class="test-button trae" onclick="runTraeTest()">
+                            🚀 執行 TRAE 測試
+                        </button>
+                    </div>
+
+                    <div class="test-results" id="traeResults">
+                        <div class="result-item">
+                            <div class="result-timestamp">等待測試...</div>
+                            <div class="result-message">點擊上方按鈕開始 TRAE 系統測試</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 自動化測試面板 -->
+                <div id="automation-panel" class="test-panel">
+                    <div class="test-form">
+                        <h3 style="color: #007acc; margin-bottom: 16px;">⚡ 自動化測試流程</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">測試場景</label>
+                            <select class="form-input" id="automationScenario">
+                                <option value="end_to_end">端到端測試</option>
+                                <option value="data_collection">數據收集測試</option>
+                                <option value="classification">分類系統測試</option>
+                                <option value="integration">整合測試</option>
+                                <option value="performance">性能測試</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">測試參數</label>
+                            <textarea class="form-input form-textarea" id="automationParams" 
+                                      placeholder="輸入測試參數 (JSON 格式)...">
+{
+  "maxTasks": 5,
+  "timeout": 30000,
+  "headless": false,
+  "enableLogging": true
+}</textarea>
+                        </div>
+
+                        <button class="test-button" onclick="runAutomationTest()">
+                            🚀 執行自動化測試
+                        </button>
+                    </div>
+
+                    <div class="test-results" id="automationResults">
+                        <div class="result-item">
+                            <div class="result-timestamp">等待測試...</div>
+                            <div class="result-message">點擊上方按鈕開始自動化測試流程</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右側數據驗證區 -->
+        <div class="data-area">
+            <div class="data-header">
+                <div class="data-title">📊 數據驗證</div>
+                <div class="data-status" id="dataStatus">實時監控</div>
+            </div>
+
+            <div class="data-content">
+                <!-- 數據庫狀態 -->
+                <div class="data-section">
+                    <div class="data-section-title">🗄️ 數據庫狀態</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>表名</th>
+                                <th>記錄數</th>
+                                <th>狀態</th>
+                            </tr>
+                        </thead>
+                        <tbody id="databaseTables">
+                            <tr>
+                                <td>tasks</td>
+                                <td id="tasksCount">-</td>
+                                <td>🟢</td>
+                            </tr>
+                            <tr>
+                                <td>messages</td>
+                                <td id="messagesCount">-</td>
+                                <td>🟢</td>
+                            </tr>
+                            <tr>
+                                <td>files</td>
+                                <td id="filesCount">-</td>
+                                <td>🟢</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分類統計 -->
+                <div class="data-section">
+                    <div class="data-section-title">🧠 分類統計</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>類型</th>
+                                <th>數量</th>
+                                <th>比例</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classificationStats">
+                            <tr>
+                                <td>💭 思考</td>
+                                <td id="thinkingCount">-</td>
+                                <td id="thinkingPercent">-</td>
+                            </tr>
+                            <tr>
+                                <td>👁️ 觀察</td>
+                                <td id="observationCount">-</td>
+                                <td id="observationPercent">-</td>
+                            </tr>
+                            <tr>
+                                <td>⚡ 行動</td>
+                                <td id="actionCount">-</td>
+                                <td id="actionPercent">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 系統日誌 -->
+                <div class="data-section">
+                    <div class="data-section-title">📝 系統日誌</div>
+                    <div class="log-container" id="systemLogs">
+                        <div class="log-entry info">[INFO] 系統啟動完成</div>
+                        <div class="log-entry info">[INFO] 等待用戶操作...</div>
+                    </div>
+                </div>
+
+                <!-- 實時監控 -->
+                <div class="data-section">
+                    <div class="data-section-title">📡 實時監控</div>
+                    <div class="status-item">
+                        <span class="status-label">CPU 使用率</span>
+                        <span class="status-value" id="cpuUsage">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">記憶體使用</span>
+                        <span class="status-value" id="memoryUsage">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">活躍連接</span>
+                        <span class="status-value" id="activeConnections">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知容器 -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // 全局變量
+        let currentTab = 'manus';
+        let testRunning = false;
+        let logUpdateInterval;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSystem();
+            startRealTimeUpdates();
+        });
+
+        // 系統初始化
+        function initializeSystem() {
+            showNotification('系統初始化中...', 'info');
+            checkSystemStatus();
+            loadDatabaseStats();
+            addLogEntry('系統啟動完成', 'info');
+        }
+
+        // 切換標籤頁
+        function switchTab(tabName) {
+            // 更新標籤狀態
+            document.querySelectorAll('.test-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // 更新面板顯示
+            document.querySelectorAll('.test-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            document.getElementById(tabName + '-panel').classList.add('active');
+
+            currentTab = tabName;
+            addLogEntry(`切換到 ${tabName.toUpperCase()} 測試面板`, 'info');
+        }
+
+        // 檢查系統狀態
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch('/api/system/status');
+                const data = await response.json();
+                
+                updateStatusDisplay('manusStatus', data.manus || '未知');
+                updateStatusDisplay('traeStatus', data.trae || '未知');
+                updateStatusDisplay('dbStatus', data.database || '未知');
+                updateStatusDisplay('playwrightStatus', data.playwright || '未知');
+                
+                addLogEntry('系統狀態檢查完成', 'info');
+            } catch (error) {
+                addLogEntry('系統狀態檢查失敗: ' + error.message, 'error');
+                updateStatusDisplay('manusStatus', '錯誤');
+                updateStatusDisplay('traeStatus', '錯誤');
+                updateStatusDisplay('dbStatus', '錯誤');
+                updateStatusDisplay('playwrightStatus', '錯誤');
+            }
+        }
+
+        // 載入數據庫統計
+        async function loadDatabaseStats() {
+            try {
+                const response = await fetch('/api/database/stats');
+                const data = await response.json();
+                
+                document.getElementById('totalTasks').textContent = data.totalTasks || 0;
+                document.getElementById('totalMessages').textContent = data.totalMessages || 0;
+                document.getElementById('classifiedMessages').textContent = data.classifiedMessages || 0;
+                document.getElementById('totalFiles').textContent = data.totalFiles || 0;
+                
+                // 更新數據表
+                document.getElementById('tasksCount').textContent = data.totalTasks || 0;
+                document.getElementById('messagesCount').textContent = data.totalMessages || 0;
+                document.getElementById('filesCount').textContent = data.totalFiles || 0;
+                
+                // 更新分類統計
+                if (data.classification) {
+                    document.getElementById('thinkingCount').textContent = data.classification.thinking || 0;
+                    document.getElementById('observationCount').textContent = data.classification.observation || 0;
+                    document.getElementById('actionCount').textContent = data.classification.action || 0;
+                    
+                    const total = (data.classification.thinking || 0) + 
+                                 (data.classification.observation || 0) + 
+                                 (data.classification.action || 0);
+                    
+                    if (total > 0) {
+                        document.getElementById('thinkingPercent').textContent = 
+                            Math.round((data.classification.thinking || 0) / total * 100) + '%';
+                        document.getElementById('observationPercent').textContent = 
+                            Math.round((data.classification.observation || 0) / total * 100) + '%';
+                        document.getElementById('actionPercent').textContent = 
+                            Math.round((data.classification.action || 0) / total * 100) + '%';
+                    }
+                }
+                
+                addLogEntry('數據庫統計載入完成', 'info');
+            } catch (error) {
+                addLogEntry('數據庫統計載入失敗: ' + error.message, 'error');
+            }
+        }
+
+        // 執行 Manus 測試
+        async function runManusTest() {
+            if (testRunning) {
+                showNotification('測試正在進行中，請稍候...', 'warning');
+                return;
+            }
+
+            testRunning = true;
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '🔄 測試中...';
+            button.disabled = true;
+
+            const url = document.getElementById('manusUrl').value;
+            const action = document.getElementById('manusAction').value;
+            const message = document.getElementById('manusMessage').value;
+
+            try {
+                addTestResult('manusResults', '開始 Manus 測試...', 'info');
+                addLogEntry(`開始 Manus 測試: ${action}`, 'info');
+
+                const response = await fetch('/api/manus/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        action: action,
+                        message: message
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    addTestResult('manusResults', result.message, 'success');
+                    addLogEntry(`Manus 測試成功: ${result.message}`, 'info');
+                    showNotification('Manus 測試完成！', 'success');
+                    
+                    // 刷新數據統計
+                    loadDatabaseStats();
+                } else {
+                    addTestResult('manusResults', result.error, 'error');
+                    addLogEntry(`Manus 測試失敗: ${result.error}`, 'error');
+                    showNotification('Manus 測試失敗！', 'error');
+                }
+            } catch (error) {
+                addTestResult('manusResults', '測試請求失敗: ' + error.message, 'error');
+                addLogEntry(`Manus 測試錯誤: ${error.message}`, 'error');
+                showNotification('Manus 測試錯誤！', 'error');
+            } finally {
+                testRunning = false;
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        }
+
+        // 執行 TRAE 測試
+        async function runTraeTest() {
+            if (testRunning) {
+                showNotification('測試正在進行中，請稍候...', 'warning');
+                return;
+            }
+
+            testRunning = true;
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '🔄 測試中...';
+            button.disabled = true;
+
+            const url = document.getElementById('traeUrl').value;
+            const action = document.getElementById('traeAction').value;
+            const command = document.getElementById('traeCommand').value;
+
+            try {
+                addTestResult('traeResults', '開始 TRAE 測試...', 'info');
+                addLogEntry(`開始 TRAE 測試: ${action}`, 'info');
+
+                const response = await fetch('/api/trae/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        action: action,
+                        command: command
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    addTestResult('traeResults', result.message, 'success');
+                    addLogEntry(`TRAE 測試成功: ${result.message}`, 'info');
+                    showNotification('TRAE 測試完成！', 'success');
+                    
+                    // 刷新數據統計
+                    loadDatabaseStats();
+                } else {
+                    addTestResult('traeResults', result.error, 'error');
+                    addLogEntry(`TRAE 測試失敗: ${result.error}`, 'error');
+                    showNotification('TRAE 測試失敗！', 'error');
+                }
+            } catch (error) {
+                addTestResult('traeResults', '測試請求失敗: ' + error.message, 'error');
+                addLogEntry(`TRAE 測試錯誤: ${error.message}`, 'error');
+                showNotification('TRAE 測試錯誤！', 'error');
+            } finally {
+                testRunning = false;
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        }
+
+        // 執行自動化測試
+        async function runAutomationTest() {
+            if (testRunning) {
+                showNotification('測試正在進行中，請稍候...', 'warning');
+                return;
+            }
+
+            testRunning = true;
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '🔄 測試中...';
+            button.disabled = true;
+
+            const scenario = document.getElementById('automationScenario').value;
+            const params = document.getElementById('automationParams').value;
+
+            try {
+                addTestResult('automationResults', '開始自動化測試...', 'info');
+                addLogEntry(`開始自動化測試: ${scenario}`, 'info');
+
+                const response = await fetch('/api/automation/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        scenario: scenario,
+                        params: JSON.parse(params)
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    addTestResult('automationResults', result.message, 'success');
+                    addLogEntry(`自動化測試成功: ${result.message}`, 'info');
+                    showNotification('自動化測試完成！', 'success');
+                    
+                    // 刷新數據統計
+                    loadDatabaseStats();
+                } else {
+                    addTestResult('automationResults', result.error, 'error');
+                    addLogEntry(`自動化測試失敗: ${result.error}`, 'error');
+                    showNotification('自動化測試失敗！', 'error');
+                }
+            } catch (error) {
+                addTestResult('automationResults', '測試請求失敗: ' + error.message, 'error');
+                addLogEntry(`自動化測試錯誤: ${error.message}`, 'error');
+                showNotification('自動化測試錯誤！', 'error');
+            } finally {
+                testRunning = false;
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        }
+
+        // 刷新狀態函數
+        function refreshManusStatus() {
+            addLogEntry('刷新 SmartInvention 狀態', 'info');
+            checkSystemStatus();
+        }
+
+        function refreshTraeStatus() {
+            addLogEntry('刷新 TRAE 狀態', 'info');
+            checkSystemStatus();
+        }
+
+        function refreshDatabase() {
+            addLogEntry('刷新數據庫統計', 'info');
+            loadDatabaseStats();
+        }
+
+        function exportData() {
+            addLogEntry('開始導出數據', 'info');
+            showNotification('數據導出功能開發中...', 'warning');
+        }
+
+        // 輔助函數
+        function updateStatusDisplay(elementId, status) {
+            const element = document.getElementById(elementId);
+            element.textContent = status;
+            
+            // 根據狀態設置樣式
+            element.className = 'status-value';
+            if (status.includes('運行') || status.includes('正常') || status.includes('成功')) {
+                element.classList.add('status-positive');
+            } else if (status.includes('警告') || status.includes('檢查')) {
+                element.classList.add('status-warning');
+            } else if (status.includes('錯誤') || status.includes('失敗')) {
+                element.classList.add('status-error');
+            }
+        }
+
+        function addTestResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const resultItem = document.createElement('div');
+            resultItem.className = 'result-item';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            resultItem.innerHTML = `
+                <div class="result-timestamp">${timestamp}</div>
+                <div class="result-message result-${type}">${message}</div>
+            `;
+            
+            container.appendChild(resultItem);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function addLogEntry(message, type = 'info') {
+            const logContainer = document.getElementById('systemLogs');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // 限制日誌條目數量
+            const entries = logContainer.children;
+            if (entries.length > 100) {
+                logContainer.removeChild(entries[0]);
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function startRealTimeUpdates() {
+            // 每30秒更新一次系統狀態
+            setInterval(() => {
+                if (!testRunning) {
+                    checkSystemStatus();
+                }
+            }, 30000);
+            
+            // 每60秒更新一次數據統計
+            setInterval(() => {
+                if (!testRunning) {
+                    loadDatabaseStats();
+                }
+            }, 60000);
+            
+            // 模擬實時監控數據
+            setInterval(() => {
+                document.getElementById('cpuUsage').textContent = 
+                    Math.floor(Math.random() * 30 + 10) + '%';
+                document.getElementById('memoryUsage').textContent = 
+                    Math.floor(Math.random() * 40 + 30) + '%';
+                document.getElementById('activeConnections').textContent = 
+                    Math.floor(Math.random() * 5 + 1);
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
+

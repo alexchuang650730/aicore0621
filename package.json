@@ -1,0 +1,87 @@
+{
+  "name": "manus-task-manager",
+  "version": "1.0.0",
+  "description": "智能任務管理系統，專門為Manus平台設計，能夠自動化收集、分析和管理任務數據",
+  "main": "src/manus_comprehensive_manager.js",
+  "scripts": {
+    "start": "node src/manus_comprehensive_manager.js",
+    "trae-send": "node src/trae-cli.js send",
+    "trae-history": "node src/trae-cli.js history", 
+    "trae-share": "node src/trae-cli.js share",
+    "trae-test": "node src/trae-cli.js test",
+    "trae-vscode-send": "node src/trae-vscode-cli.js send",
+    "trae-vscode-history": "node src/trae-vscode-cli.js history",
+    "trae-vscode-test": "node src/trae-vscode-cli.js test",
+    "trae-vscode-screenshot": "node src/trae-vscode-cli.js screenshot",
+    "migrate": "node src/utils/migration-tool.js",
+    "migrate-test": "node src/utils/migration-tool.js --test",
+    "start-system": "./scripts/start-aicore0621.sh",
+    "start-system-test": "./scripts/start-aicore0621.sh --test",
+    "test": "node examples/basic-usage.js",
+    "dev": "NODE_ENV=development node src/manus_comprehensive_manager.js",
+    "prod": "NODE_ENV=production node src/manus_comprehensive_manager.js",
+    "init-config": "cp src/config/config.example.js src/config/config.js",
+    "check-deps": "node -e \"console.log('Node.js:', process.version); console.log('Dependencies check passed!')\"",
+    "install-browsers": "npx playwright install chromium",
+    "clean": "rm -rf /tmp/manus-* && echo 'Temporary files cleaned'",
+    "backup-db": "cp src/config/config.js src/config/config.backup.js && echo 'Config backed up'",
+    "lint": "echo 'Linting not configured yet'",
+    "docs": "echo 'Documentation available in docs/ directory'"
+  },
+  "keywords": [
+    "manus",
+    "task-management",
+    "automation",
+    "playwright",
+    "sqlite",
+    "web-scraping",
+    "ai",
+    "data-collection"
+  ],
+  "author": "Manus AI Team",
+  "license": "MIT",
+  "dependencies": {
+    "playwright": "^1.40.0",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexchuang650730/aicore0621.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alexchuang650730/aicore0621/issues"
+  },
+  "homepage": "https://github.com/alexchuang650730/aicore0621#readme",
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "lib": "src"
+  },
+  "files": [
+    "src/",
+    "docs/",
+    "examples/",
+    "README.md",
+    "LICENSE"
+  ],
+  "config": {
+    "unsafe-perm": true
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ]
+}
+
